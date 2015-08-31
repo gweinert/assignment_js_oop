@@ -32,7 +32,7 @@ function Spaceship(x , y){
   this.y_coord = y;
   this.vx = 0;
   this.vy = 0;
-  this.angle = 0;
+  this.angle = 90;
   this.angularVelocity = 0;
   this.acceleration = 1;
 };
@@ -154,18 +154,7 @@ var model = {
 var view = {
   
   ctx: document.getElementById('board').getContext("2d"),
-  keys: {
-    37: controller.rotateLeft,
-    38: controller.accelerate,
-    39: controller.rotateRight
-  },
 
-  init: function() {
-    $(document).keydown(function(e) {
-      keys[e.keyCode]();
-    });
-
-  },
 
   render: function(asteroids, spaceShip) {
     var ctx = this.ctx;
@@ -212,7 +201,16 @@ var view = {
 
 var controller = {
 
+  keys: {
+    37: this.rotateLeft,
+    38: this.accelerate,
+    39: this.rotateRight
+  },
+
   init: function() {
+    $(document).keydown(function(e) {
+      keys[e.keyCode]();
+    });
     model.init();
     view.render(model.asteroids, model.spaceShip);
   },
@@ -241,11 +239,11 @@ var controller = {
   },
 
   rotateLeft: function() {
-    model.spaceShip.rotate(1);
+    model.spaceShip.rotate(20);
   },
 
   rotateRight: function() {
-    model.spaceShip.rotate(-1);
+    model.spaceShip.rotate(-20);
   },
 
   accelerate: function() {
