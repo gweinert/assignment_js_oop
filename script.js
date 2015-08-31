@@ -60,21 +60,49 @@ var model = {
     for (var i=0; i<10; i++) {
       var a = new Asteroid();
       a.randomize();
-      this.asteroids.push(a);    
-    };
+      this.asteroids.push(a);  
+    }
   },
 
-  collision: function(asteroid1, asteroid2) {
+  randomizeCollisionAsteriods: function(astroid, size){
+    astroid.vx = Math.floor( (Math.random()*11) -5 );
+    astroid.vy = Math.floor( (Math.random()*11) -5 );
+    astroid.size = Math.floor( (Math.random()*(size)) + 1);
 
-  }
+  },
 
-}
+  collision: function(asteroid) {
+    // randonNumOfAsteroids = Math.floor( (Math.random() * 3) +1);
+
+    if(astroid.size > 1){
+      createSmallerAsteroids()
+    }
+
+
+    $(astroid).remove
+
+    asteroid.vx =  Math.floor( (Math.random()*11) -5 );
+    asteroid.vy =  Math.floor( (Math.random()*11) -5 );
+    asteroid.size = Math.floor( (Math.random()*(asteroid.size)) + 1 );
+  },
+
+  createSmallerAsteroids: function(){
+
+    for( var i = 0 ; i < randonNumOfAsteroids ; i++ ){
+      var newAstroid = new Asteroid();
+      randomizeCollisionAsteriods(newAstroid, asteroid1.size);
+      model.asteroids.push(newAstroid);
+    }
+
+  },
+
+};
 
 
 var view = {
   ctx: document.getElementById('board').getContext("2d"),
 
-  render: function(asteroids) { 
+  render: function(asteroids) {
     var ctx = this.ctx;
     ctx.clearRect(0, 0, 400, 400);
     for (var i=0; i<asteroids.length; i++) {
@@ -99,6 +127,9 @@ var controller = {
   play: function() {
     var gameLoop = setInterval( function() {
       for( var i = 0; i < model.asteroids.length; i++){
+
+        
+
         model.asteroids[i].tic();
       };
       view.render(model.asteroids);
