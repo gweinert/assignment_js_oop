@@ -24,7 +24,7 @@ Asteroid.prototype.randomize = function() {
   this.y_coord = Math.floor(Math.random()*400);
   this.vx = Math.floor( (Math.random()*11) -5 );
   this.vy = Math.floor( (Math.random()*11) -5 );
-  this.size = Math.floor( (Math.random()*20) + 1 );
+  this.size = Math.floor( (Math.random()*20) + 2 );
 };
 // var largeNumOfAsteroids = function(){
 //   var asteroids = [];
@@ -55,46 +55,63 @@ Asteroid.prototype.randomize = function() {
 var model = {
 
   asteroids: [],
+  pieces: [],
 
   init: function() {
-    for (var i=0; i<10; i++) {
+    for (var i=0; i<20; i++) {
       var a = new Asteroid();
       a.randomize();
       this.asteroids.push(a);  
     }
   },
 
-  randomizeCollisionAsteriods: function(astroid, size){
-    astroid.vx = Math.floor( (Math.random()*11) -5 );
-    astroid.vy = Math.floor( (Math.random()*11) -5 );
-    astroid.size = Math.floor( (Math.random()*(size)) + 1);
-
-  },
 
   collision: function(asteroid) {
-    // randonNumOfAsteroids = Math.floor( (Math.random() * 3) +1);
 
-    if(astroid.size > 1){
-      createSmallerAsteroids()
+    if(asteroid.size > 1){
+      this.createSmallerAsteroids(asteroid);
+      asteroid.vx =  Math.floor( (Math.random()*11) -5 );
+      asteroid.vy =  Math.floor( (Math.random()*11) -5 );
+      asteroid.size = Math.floor( (Math.random()*(asteroid.size)) );
+    } else {
+      asteroid.size = 0;
     }
 
-
-    $(astroid).remove
-
-    asteroid.vx =  Math.floor( (Math.random()*11) -5 );
-    asteroid.vy =  Math.floor( (Math.random()*11) -5 );
-    asteroid.size = Math.floor( (Math.random()*(asteroid.size)) + 1 );
   },
 
-  createSmallerAsteroids: function(){
+  createSmallerAsteroids: function(asteroid){
+    randonNumOfAsteroids = Math.floor( (Math.random() * 3) +1);
 
     for( var i = 0 ; i < randonNumOfAsteroids ; i++ ){
       var newAstroid = new Asteroid();
-      randomizeCollisionAsteriods(newAstroid, asteroid1.size);
-      model.asteroids.push(newAstroid);
+      this.randomizeCollisionAsteriods(newAstroid, asteroid.size);
+      if (newAstroid.size > 1) {
+        model.pieces.push(newAstroid);       
+      }
     }
 
   },
+
+  randomizeCollisionAsteriods: function(astroid, size){
+    astroid.vx = Math.floor( (Math.random()*11) -5 );
+    astroid.vy = Math.floor( (Math.random()*11) -5 );
+    astroid.size = Math.floor( (Math.random()*(size)) );
+
+  },
+
+  addPieces: function() {
+    // console.log(this.pieces);
+    this.asteroids = this.asteroids.concat(this.pieces);
+    this.pieces = [];
+  },
+
+  checkCollision: function(asteroid1, asteroid2) {
+    // console.log("asteroid1" + asteroid1.size);
+    // console.log("asteroid2" + asteroid2.size);
+    if (asteroid1.size === 0 || asteroid2.size === 0) {return false};
+    var distance = Math.floor(Math.sqrt(Math.pow((asteroid1.x_coord - asteroid2.x_coord), 2) + Math.pow((asteroid1.y_coord - asteroid2.y_coord), 2)));
+    return distance <= asteroid1.size + asteroid2.size;
+  }
 
 };
 
@@ -107,7 +124,7 @@ var view = {
     ctx.clearRect(0, 0, 400, 400);
     for (var i=0; i<asteroids.length; i++) {
       ctx.beginPath();
-      console.log(asteroids[i]);
+      // console.log(asteroids[i]);
       ctx.arc(asteroids[i].x_coord, asteroids[i].y_coord, asteroids[i].size, 0, 2*Math.PI);
       ctx.stroke();
     }
@@ -127,13 +144,22 @@ var controller = {
   play: function() {
     var gameLoop = setInterval( function() {
       for( var i = 0; i < model.asteroids.length; i++){
-
-        
-
         model.asteroids[i].tic();
+
+        for (var j=i+1; j < model.asteroids.length; j++) {
+          if (model.checkCollision(model.asteroids[i], model.asteroids[j])) {
+            model.collision(model.asteroids[i]);
+            model.collision(model.asteroids[j]);
+          }
+        }
+
       };
+
+      model.addPieces();
+      console.log("num of asteroids " + model.asteroids.length);
+
       view.render(model.asteroids);
-    }, 100);
+    }, 200);
   }
   
 }
