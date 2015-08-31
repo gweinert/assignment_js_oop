@@ -34,8 +34,27 @@ function Spaceship(x , y){
   this.vy = 0;
   this.angle = 0;
   this.angularVelocity = 0;
-  this.acceleration = 0;
-}
+  this.acceleration = 1;
+};
+
+Spaceship.prototype.tic = function() {
+  this.x_coord = (this.x_coord+this.vx)%400;
+  this.y_coord = (this.y_coord+this.vy)%400;
+  this.angle += this.angularVelocity;
+};
+
+Spaceship.prototype.rotate = function(direction) {
+  this.angularVelocity += direction;
+};
+
+Spaceship.prototype.accelerate = function() {
+  this.vx += this.acceleration;
+  this.vy += this.acceleration;
+};
+
+
+
+
 // var largeNumOfAsteroids = function(){
 //   var asteroids = [];
 //   for(var i = 0; i < 1000; i++ ){
@@ -135,6 +154,18 @@ var model = {
 var view = {
   
   ctx: document.getElementById('board').getContext("2d"),
+  keys: {
+    37: controller.rotateLeft,
+    38: controller.accelerate,
+    39: controller.rotateRight
+  },
+
+  init: function() {
+    $(document).keydown(function(e) {
+      keys[e.keyCode]();
+    });
+
+  },
 
   render: function(asteroids, spaceShip) {
     var ctx = this.ctx;
@@ -157,22 +188,22 @@ var view = {
     
   }, 
 
-  document.onkeydown = function(e) {
-    switch (e.keyCode) {
-        case 37:
-            alert('left');
-            break;
-        case 38:
-            alert('up');
-            break;
-        case 39:
-            alert('right');
-            break;
-        case 40:
-            alert('down');
-            break;
-    }
-};
+//   document.onkeydown = function(e) {
+//     switch (e.keyCode) {
+//         case 37:
+//             alert('left');
+//             break;
+//         case 38:
+//             alert('up');
+//             break;
+//         case 39:
+//             alert('right');
+//             break;
+//         case 40:
+//             alert('down');
+//             break;
+//     }
+// };
 
 
 
@@ -203,8 +234,22 @@ var controller = {
       model.addPieces();
       console.log("num of asteroids " + model.asteroids.length);
 
+      model.spaceShip.tic();
+
       view.render(model.asteroids, model.spaceShip);
     }, 200);
+  },
+
+  rotateLeft: function() {
+    model.spaceShip.rotate(1);
+  },
+
+  rotateRight: function() {
+    model.spaceShip.rotate(-1);
+  },
+
+  accelerate: function() {
+    model.spaceShip.accelerate();
   }
   
 }
