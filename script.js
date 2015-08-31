@@ -1,5 +1,5 @@
 
-function Asteroid(){
+function Asteroid(x, y, vx, vy, size){
   this.x_coord = x;
   this.y_coord = y;
   this.vx = vx;
@@ -44,23 +44,38 @@ Asteroid.prototype.tic = function(){
 //   return (endTime - startTime);
 // };
 
-Asteroid.prototype.create = function() {
-  this.rand_x = Math.floor(Math.random()*100);
-  this.rand_y = Math.floor(Math.random()*100);
-  this.rand_vx = Math.floor( (Math.random()*11) -5 );
-  this.rand_vy = Math.floor( (Math.random()*11) -5 );
-  this.size = Math.floor( (Math.random()*5) + 1 );
-}
+Asteroid.prototype.randomize = function() {
+  this.x_coord = Math.floor(Math.random()*400);
+  this.y_coord = Math.floor(Math.random()*400);
+  this.vx = Math.floor( (Math.random()*11) -5 );
+  this.vy = Math.floor( (Math.random()*11) -5 );
+  this.size = Math.floor( (Math.random()*20) + 1 );
+};
+
+
 
 
 function render() {
+  
+  var canvas = document.getElementById('board');
+  var ctx = canvas.getContext("2d");
   var asteroids = [];
   for (var i=0; i<10; i++) {
     var a = new Asteroid();
-    a.create();
+    a.randomize();
     asteroids.push(a);
+    ctx.beginPath();
+    console.log(a);
+    ctx.arc(a.x_coord, a.y_coord, a.size, 0, 2*Math.PI);
+    ctx.stroke();
   }
-  $("#board").append
+
+  var gameLoop = setInterval( function() {
+    for( var i = 0; i < asteroids.length; i++){
+      asteroids[i].tic();
+    }
+  })
+  
 }
 
 
