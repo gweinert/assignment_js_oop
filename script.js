@@ -62,15 +62,20 @@ var model = {
       a.randomize();
       this.asteroids.push(a);    
     };
+  },
+
+  collision: function(asteroid1, asteroid2) {
+
   }
 
 }
 
 
 var view = {
+  ctx: document.getElementById('board').getContext("2d"),
+
   render: function(asteroids) { 
-    var canvas = document.getElementById('board');
-    var ctx = canvas.getContext("2d");
+    var ctx = this.ctx;
     ctx.clearRect(0, 0, 400, 400);
     for (var i=0; i<asteroids.length; i++) {
       ctx.beginPath();
