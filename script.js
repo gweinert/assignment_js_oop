@@ -14,8 +14,8 @@ function Asteroid(x, y, vx, vy, size){
 
 Asteroid.prototype.tic = function(){
   // console.log("before coords: "+this.x_coord+", "+this.y_coord);
-  this.x_coord += this.vx;
-  this.y_coord += this.vy;
+  this.x_coord = (this.x_coord+this.vx)%400;
+  this.y_coord = (this.y_coord+this.vy)%400;
   // console.log("after coords: "+this.x_coord+", "+this.y_coord);
 };
 
@@ -26,6 +26,16 @@ Asteroid.prototype.randomize = function() {
   this.vy = Math.floor( (Math.random()*11) -5 );
   this.size = Math.floor( (Math.random()*20) + 2 );
 };
+
+function Spaceship(x , y){
+  this.x_coord = x;
+  this.y_coord = y;
+  this.vx = 0;
+  this.vy = 0;
+  this.angle = 0;
+  this.angularVelocity = 0;
+  this.acceleration = 0;
+}
 // var largeNumOfAsteroids = function(){
 //   var asteroids = [];
 //   for(var i = 0; i < 1000; i++ ){
@@ -56,13 +66,19 @@ var model = {
 
   asteroids: [],
   pieces: [],
+  spaceShip: {},
 
   init: function() {
-    for (var i=0; i<20; i++) {
+    for (var i=0; i<3; i++) {
       var a = new Asteroid();
       a.randomize();
-      this.asteroids.push(a);  
+      this.asteroids.push(a);
     }
+    this.createSpaceship();
+  },
+
+  createSpaceship: function() {
+    this.spaceShip = new Spaceship(400/2, 400/2);
   },
 
 
@@ -86,7 +102,7 @@ var model = {
       var newAstroid = new Asteroid();
       this.randomizeCollisionAsteriods(newAstroid, asteroid.size);
       if (newAstroid.size > 1) {
-        model.pieces.push(newAstroid);       
+        model.pieces.push(newAstroid);      
       }
     }
 
@@ -117,11 +133,21 @@ var model = {
 
 
 var view = {
+  
   ctx: document.getElementById('board').getContext("2d"),
 
-  render: function(asteroids) {
+  render: function(asteroids, spaceShip) {
     var ctx = this.ctx;
     ctx.clearRect(0, 0, 400, 400);
+
+    ctx.rotate(spaceShip.angle);
+
+    var img = new Image();
+    img.onload = function() {
+      ctx.drawImage(img, spaceShip.x_coord, spaceShip.y_coord, 50, 50);
+    };
+    img.src = "spaceShip.png";
+
     for (var i=0; i<asteroids.length; i++) {
       ctx.beginPath();
       // console.log(asteroids[i]);
@@ -129,16 +155,35 @@ var view = {
       ctx.stroke();
     }
     
-  }
+  }, 
 
-}
+  document.onkeydown = function(e) {
+    switch (e.keyCode) {
+        case 37:
+            alert('left');
+            break;
+        case 38:
+            alert('up');
+            break;
+        case 39:
+            alert('right');
+            break;
+        case 40:
+            alert('down');
+            break;
+    }
+};
+
+
+
+};
 
 
 var controller = {
 
   init: function() {
     model.init();
-    view.render(model.asteroids);
+    view.render(model.asteroids, model.spaceShip);
   },
 
   play: function() {
@@ -158,7 +203,7 @@ var controller = {
       model.addPieces();
       console.log("num of asteroids " + model.asteroids.length);
 
-      view.render(model.asteroids);
+      view.render(model.asteroids, model.spaceShip);
     }, 200);
   }
   
