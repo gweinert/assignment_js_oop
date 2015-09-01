@@ -32,7 +32,7 @@ function Spaceship(x , y){
   this.y_coord = y;
   this.vx = 0;
   this.vy = 0;
-  this.angle = 10;
+  this.angle = 180;
   this.angularVelocity = 0;
   this.acceleration = 1;
 }
@@ -50,7 +50,7 @@ Spaceship.prototype.rotate = function(direction) {
 };
 
 Spaceship.prototype.accelerate = function() {
-  this.vx += this.acceleration*Math.sin(this.angle*Math.PI/180);
+  this.vx -= this.acceleration*Math.sin(this.angle*Math.PI/180);
   this.vy += this.acceleration*Math.cos(this.angle*Math.PI/180);
 };
 
@@ -123,7 +123,7 @@ var model = {
       var newAstroid = new Asteroid();
       this.randomizeCollisionAsteriods(newAstroid, asteroid.size);
       if (newAstroid.size > 1) {
-        model.pieces.push(newAstroid);      
+        model.pieces.push(newAstroid);  
       }
     }
 
@@ -145,7 +145,7 @@ var model = {
   checkCollision: function(asteroid1, asteroid2) {
     // console.log("asteroid1" + asteroid1.size);
     // console.log("asteroid2" + asteroid2.size);
-    if (asteroid1.size === 0 || asteroid2.size === 0) {return false};
+    if (asteroid1.size === 0 || asteroid2.size === 0) {return false;}
     var distance = Math.floor(Math.sqrt(Math.pow((asteroid1.x_coord - asteroid2.x_coord), 2) + Math.pow((asteroid1.y_coord - asteroid2.y_coord), 2)));
     return distance <= asteroid1.size + asteroid2.size;
   }
@@ -168,10 +168,17 @@ var view = {
     ctx.translate(-spaceShip.x_coord,-spaceShip.y_coord);
 
     var path=new Path2D();
-    path.moveTo(spaceShip.x_coord - 20,spaceShip.y_coord - 20);
-    path.lineTo(spaceShip.x_coord + 20,spaceShip.y_coord + 20);
-    path.lineTo(spaceShip.x_coord + 20,spaceShip.y_coord - 20);
+    // path.moveTo(spaceShip.x_coord - 20,spaceShip.y_coord - 20);
+    // path.lineTo(spaceShip.x_coord + 20,spaceShip.y_coord + 20);
+    // path.lineTo(spaceShip.x_coord + 20,spaceShip.y_coord - 20);
+    // ctx.fill(path);
+
+    path.moveTo(spaceShip.x_coord ,spaceShip.y_coord + (Math.sqrt(400 - (15/2)^2))/2 );
+    path.lineTo(spaceShip.x_coord + (15/2), (spaceShip.y_coord + (Math.sqrt(400 - (15/2)^2))/2) - 20);
+    path.lineTo(spaceShip.x_coord - (15/2), (spaceShip.y_coord + (Math.sqrt(400 - (15/2)^2))/2) - 20);
     ctx.fill(path);
+    
+
     // var img = new Image();
     // img.onload = function() {
     //   ctx.drawImage(img, spaceShip.x_coord, spaceShip.y_coord, 50, 50);
@@ -179,15 +186,6 @@ var view = {
     // img.src = "spaceShip.png";
 
     ctx.restore();
-
-    // function drawRotated(degrees){
-    //     ctx.clearRect(0,0,400,400);
-    //     ctx.save();
-    //     ctx.translate(400/2,400/2);
-    //     ctx.rotate(degrees*Math.PI/180);
-    //     ctx.drawImage(img,-img.width/2,-img.width/2);
-    //     ctx.restore();
-    // }
 
     
 
@@ -198,25 +196,6 @@ var view = {
       ctx.stroke();
     }
   },
-
-  
-
-//   document.onkeydown = function(e) {
-//     switch (e.keyCode) {
-//         case 37:
-//             alert('left');
-//             break;
-//         case 38:
-//             alert('up');
-//             break;
-//         case 39:
-//             alert('right');
-//             break;
-//         case 40:
-//             alert('down');
-//             break;
-//     }
-// };
 
 
 
@@ -250,12 +229,16 @@ var controller = {
               console.log('right');
               controller.rotateRight();
               break;
-          
+          case 32:
+            console.log("fire");
+            controller.shoot();
+            break;
           // case 40:
           //     alert('down');
           //     break;
 
       }
+      e.preventDefault();
     });
     model.init();
     view.render(model.asteroids, model.spaceShip);
@@ -273,7 +256,7 @@ var controller = {
           }
         }
 
-      };
+      }
 
       model.addPieces();
       console.log("num of asteroids " + model.asteroids.length);
@@ -285,18 +268,24 @@ var controller = {
   },
 
   rotateLeft: function() {
-    model.spaceShip.rotate(20);
+    model.spaceShip.rotate(-10);
     // view.drawRotated(model.spaceShip.angle)
   },
 
   rotateRight: function() {
-    model.spaceShip.rotate(-20);
+    model.spaceShip.rotate(10);
     // view.drawRotated(model.spaceShip.angle)
   },
 
   accelerate: function() {
     console.log("accel!");
     model.spaceShip.accelerate();
+  },
+
+  shoot: function() {
+    var a = new Asteroid(model.spaceShip.x_coord, model.spaceShip.y_coord, (model.spaceShip.vx*2)+ (5)*(Math.sin(this.angle*Math.PI/180)), (model.spaceShip.vy*2) + (5)*Math.cos(this.angle*Math.PI/180), 3 );
+    model.asteroids.push(a);
+
   }
   
 };
