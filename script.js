@@ -32,24 +32,26 @@ function Spaceship(x , y){
   this.y_coord = y;
   this.vx = 0;
   this.vy = 0;
-  this.angle = 90;
+  this.angle = 10;
   this.angularVelocity = 0;
   this.acceleration = 1;
-};
+}
 
 Spaceship.prototype.tic = function() {
   this.x_coord = (this.x_coord+this.vx)%400;
   this.y_coord = (this.y_coord+this.vy)%400;
-  this.angle += this.angularVelocity;
+  // this.angle += this.angularVelocity;
 };
 
 Spaceship.prototype.rotate = function(direction) {
-  this.angularVelocity += direction;
+  // this.angularVelocity += direction;
+  this.angle += direction;
+  console.log("spaceship angle = "+this.angle);
 };
 
 Spaceship.prototype.accelerate = function() {
-  this.vx += this.acceleration;
-  this.vy += this.acceleration;
+  this.vx += this.acceleration*Math.sin(this.angle*Math.PI/180);
+  this.vy += this.acceleration*Math.cos(this.angle*Math.PI/180);
 };
 
 
@@ -160,13 +162,34 @@ var view = {
     var ctx = this.ctx;
     ctx.clearRect(0, 0, 400, 400);
 
-    ctx.rotate(spaceShip.angle);
+    ctx.save();
+    ctx.translate(spaceShip.x_coord,spaceShip.y_coord);
+    ctx.rotate(model.spaceShip.angle*Math.PI/180);
+    ctx.translate(-spaceShip.x_coord,-spaceShip.y_coord);
 
-    var img = new Image();
-    img.onload = function() {
-      ctx.drawImage(img, spaceShip.x_coord, spaceShip.y_coord, 50, 50);
-    };
-    img.src = "spaceShip.png";
+    var path=new Path2D();
+    path.moveTo(spaceShip.x_coord - 20,spaceShip.y_coord - 20);
+    path.lineTo(spaceShip.x_coord + 20,spaceShip.y_coord + 20);
+    path.lineTo(spaceShip.x_coord + 20,spaceShip.y_coord - 20);
+    ctx.fill(path);
+    // var img = new Image();
+    // img.onload = function() {
+    //   ctx.drawImage(img, spaceShip.x_coord, spaceShip.y_coord, 50, 50);
+    // };
+    // img.src = "spaceShip.png";
+
+    ctx.restore();
+
+    // function drawRotated(degrees){
+    //     ctx.clearRect(0,0,400,400);
+    //     ctx.save();
+    //     ctx.translate(400/2,400/2);
+    //     ctx.rotate(degrees*Math.PI/180);
+    //     ctx.drawImage(img,-img.width/2,-img.width/2);
+    //     ctx.restore();
+    // }
+
+    
 
     for (var i=0; i<asteroids.length; i++) {
       ctx.beginPath();
@@ -174,8 +197,9 @@ var view = {
       ctx.arc(asteroids[i].x_coord, asteroids[i].y_coord, asteroids[i].size, 0, 2*Math.PI);
       ctx.stroke();
     }
-    
-  }, 
+  },
+
+  
 
 //   document.onkeydown = function(e) {
 //     switch (e.keyCode) {
@@ -201,15 +225,37 @@ var view = {
 
 var controller = {
 
-  keys: {
-    37: this.rotateLeft,
-    38: this.accelerate,
-    39: this.rotateRight
-  },
+  // keys: {
+  //   37: controller.rotateLeft,
+  //   38: controller.accelerate,
+  //   39: controller.rotateRight
+  // },
 
   init: function() {
+    // $(document).keydown(function(e) {
+    //   controller.keys[e.keyCode]();
+    // });
+
     $(document).keydown(function(e) {
-      keys[e.keyCode]();
+      switch (e.keyCode) {
+          case 37:
+              console.log('left');
+              controller.rotateLeft();
+              break;
+          case 38:
+              console.log('up');
+              controller.accelerate();
+              break;
+          case 39:
+              console.log('right');
+              controller.rotateRight();
+              break;
+          
+          // case 40:
+          //     alert('down');
+          //     break;
+
+      }
     });
     model.init();
     view.render(model.asteroids, model.spaceShip);
@@ -235,22 +281,25 @@ var controller = {
       model.spaceShip.tic();
 
       view.render(model.asteroids, model.spaceShip);
-    }, 200);
+    }, 100);
   },
 
   rotateLeft: function() {
     model.spaceShip.rotate(20);
+    // view.drawRotated(model.spaceShip.angle)
   },
 
   rotateRight: function() {
     model.spaceShip.rotate(-20);
+    // view.drawRotated(model.spaceShip.angle)
   },
 
   accelerate: function() {
+    console.log("accel!");
     model.spaceShip.accelerate();
   }
   
-}
+};
 
 
 
